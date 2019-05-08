@@ -1,0 +1,11 @@
+module Ray
+
+import public Vect3
+
+record Ray where
+  constructor MkRay
+  origin : Vect3
+  direction : Vect3
+
+point_atparameter : Ray -> Double -> Vect3
+point_atparameter (MkRay origin direction) y = ?point_atparameter_rhs_1
