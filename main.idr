@@ -31,39 +31,23 @@ printVect3 (x :: y :: z :: []) = show x ++ " " ++ show y ++ " " ++ show z
 
 iter2 : Hitable a => Int -> Int -> Int -> Int -> Camera -> HitableList a ->
         Vect3 -> Int -> Eff Vect3 [STDIO, RND]
-iter2 i j nx ny camera world col 0 = do
-  u <- genRand i nx
-  v <- genRand j ny
-  let r = getRay camera u v
-  pure (col + color r world)
+iter2 i j nx ny camera world col 0 = pure col
 iter2 i j nx ny camera world col n = do
   u <- genRand i nx
   v <- genRand j ny
   let r = getRay camera u v
   iter2 i j nx ny camera world (col + color r world) (n-1)
 
--- Vect3 -> Int
-
 helper2 : Hitable a => Int -> Int -> Int -> Camera -> HitableList a ->
           (Int, Int) -> Eff () [RND, STDIO, SYSTEM]
 helper2 nx ny ns camera world (j, i) = do
     t <- time
     srand t
-    col <- iter2 i j nx ny camera world [0,0,0] (ns-1)
+    col <- iter2 i j nx ny camera world [0,0,0] ns
     putStrLn $ printVect3 $ map (the Int . cast) $ map outMap col
   where
     outMap : Double -> Double
     outMap x = (*) 255.99 $ x / (cast ns)
-
--- helper : Hitable a => Int -> Int -> Int -> Camera -> HitableList a -> 
---         (Int, Int) -> IO ()
--- helper nx ny ns camera world (j, i) =
---  let fn = (iter i j nx ny camera world) in do
---    col <- foldlM fn [0,0,0] [0..(ns-1)]
---    putStrLn $ printVect3 $ map (the Int . cast) $ map outMap col
---  where
---    outMap : Double -> Double
---    outMap x = (*) 255.99 $ x / (cast ns) 
 
 main : IO ()
 main =
